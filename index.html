@@ -1039,21 +1039,14 @@
                 for (let j = 0; j < icons; j++) {
                   if (this.cards[i].allergens[idx]) {
                     var img = new Image();
-                    if (window.location.protocol === "file:")
-                      img.src =
-                        "data:image/png;base64," +
-                        hImages[
-                          this.allergens[
-                            this.cards[i].allergens[idx]
-                          ].toLowerCase()
-                        ];
-                    else
-                      img.src =
-                        "images/" +
+                    // always use hImages
+                    img.src =
+                      "data:image/png;base64," +
+                      hImages[
                         this.allergens[
                           this.cards[i].allergens[idx]
-                        ].toLowerCase() +
-                        ".png";
+                        ].toLowerCase()
+                      ];
                     doc.addImage(
                       img,
                       "png",
