@@ -1002,15 +1002,10 @@
               for (let j = 0; j <= dietCount; j++) {
                 if (this.cards[i].diets[j]) {
                   var img = new Image();
-                  if (window.location.protocol === "file:")
-                    img.src =
-                      "data:image/png;base64," +
-                      hImages[this.diets[this.cards[i].diets[j]].toLowerCase()];
-                  else
-                    img.src =
-                      "images/" +
-                      this.diets[this.cards[i].diets[j]].toLowerCase() +
-                      ".png";
+                  // always use hImages
+                  img.src =
+                    "data:image/png;base64," +
+                    hImages[this.diets[this.cards[i].diets[j]].toLowerCase()];
                   doc.addImage(
                     img,
                     "png",
