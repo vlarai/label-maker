@@ -1,1309 +1,1036 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Label Maker</title>
-    <script src="images.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js"></script>
-    <link
-      href="https://tofsjonas.github.io/sortable/sortable.css"
-      rel="stylesheet"
-    />
-    <!-- <script src="https://tofsjonas.github.io/sortable/sortable.js"></script> -->
-    <script src="https://cdn.jsdelivr.net/npm/jspdf@latest/dist/jspdf.umd.min.js"></script>
 
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css"
-    />
-    <style>
-      hr {
-        width: 75%;
-        margin: auto;
-        border: none;
-        height: 1pt;
-        background-color: black;
-      }
-      .diets {
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-      }
-      .allergens {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap-reverse;
-        justify-content: center;
-      }
-      .icon {
-        position: relative;
-        margin-bottom: 8pt;
-      }
-      .bottom-center {
-        position: absolute;
-        /* bottom: 1pt; */
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 8pt;
-      }
-      .icons {
-        display: flex;
-        flex-flow: column;
-        /* margin-top: 14pt; */
-        margin-bottom: 10pt;
-      }
-      .hilton-card {
-        display: grid;
-        grid-template-rows: 1fr 2pt 1fr 1fr;
-        align-items: center;
-        font-family: "Loew 2.0", sans-serif;
-        font-size: 14pt;
-        text-align: center;
-        width: 184pt;
-        height: 326pt;
-        overflow: hidden;
-        border: 1px;
-        border-color: black;
-        border-style: solid;
-        /* padding: 12pt; */
-      }
-      .hilton-item {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        margin: 0 12pt;
-      }
-      .hilton-card:hover {
-        background-color: rgba(255, 0, 0, 0.3);
-        z-index: 1048;
-      }
-      .hilton-card p {
-        margin-bottom: 0;
-      }
-      .hilton-icon {
-        width: 50px;
-        height: 50px;
-      }
-      .printable {
-        margin-top: 32px;
-        margin-left: auto;
-        margin-right: auto;
-        display: grid;
-        grid-template-columns: 184pt 184pt 184pt;
-      }
-      .header {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        justify-content: space-between;
-        position: sticky;
-        top: 0;
-        background-color: white;
-        z-index: 1049;
-      }
-      .last-item {
-        display: flex;
-      }
-      .sortable th.dir-d,
-      .sortable th.dir-u,
-      .sortable th:hover {
-        color: #fff;
-      }
-      .sortable th.no-sort {
-        pointer-events: none;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="app">
-      <div class="container">
-        <div class="header">
-          <h1><i class="bi bi-tags-fill"></i> Label Maker</h1>
-          <div style="justify-self: end; margin: auto 0">
-            <button class="btn btn-success" @click="modalToggle" title="Add Card">
-              <i class="bi bi-plus-square-fill"></i></button
-            >&nbsp;
-            <input
-              type="file"
-              ref="file"
-              id="fileUpload"
-              accept=".json"
-              hidden
-              @change="loadJSON"
-            />
-            <button class="btn btn-primary" @click="loadButton()" title="Load JSON"><i class="bi bi-upload"></i></button
-            >&nbsp;
-            <button class="btn btn-primary" @click="saveJSON()" title="Save JSON"><i class="bi bi-download"></i></button
-            >&nbsp;
-            <button class="btn btn-danger position-relative" @click="print()" title="Create PDF">
-              
-              <i class="bi bi-file-pdf-fill"></i>
-              <!-- <span
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Label Maker</title>
+  <script src="images.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js"></script>
+  <link href="https://tofsjonas.github.io/sortable/sortable.css" rel="stylesheet" />
+  <!-- <script src="https://tofsjonas.github.io/sortable/sortable.js"></script> -->
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@latest/dist/jspdf.umd.min.js"></script>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css" />
+  <style>
+    hr {
+      width: 75%;
+      margin: auto;
+      border: none;
+      height: 1pt;
+      background-color: black;
+    }
+
+    .diets {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+    }
+
+    .allergens {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap-reverse;
+      justify-content: center;
+    }
+
+    .icon {
+      position: relative;
+      margin-bottom: 8pt;
+    }
+
+    .bottom-center {
+      position: absolute;
+      /* bottom: 1pt; */
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 8pt;
+    }
+
+    .icons {
+      display: flex;
+      flex-flow: column;
+      /* margin-top: 14pt; */
+      margin-bottom: 10pt;
+    }
+
+    .hilton-card {
+      display: grid;
+      grid-template-rows: 1fr 2pt 1fr 1fr;
+      align-items: center;
+      font-family: "Loew 2.0", sans-serif;
+      font-size: 14pt;
+      text-align: center;
+      width: 184pt;
+      height: 326pt;
+      overflow: hidden;
+      border: 1px;
+      border-color: black;
+      border-style: solid;
+      /* padding: 12pt; */
+    }
+
+    .hilton-item {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      margin: 0 12pt;
+    }
+
+    .hilton-card:hover {
+      background-color: rgba(255, 0, 0, 0.3);
+      z-index: 1048;
+    }
+
+    .hilton-card p {
+      margin-bottom: 0;
+    }
+
+    .hilton-icon {
+      width: 50px;
+      height: 50px;
+    }
+
+    .printable {
+      margin-top: 32px;
+      margin-left: auto;
+      margin-right: auto;
+      display: grid;
+      grid-template-columns: 184pt 184pt 184pt;
+    }
+
+    .header {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      background-color: white;
+      z-index: 1049;
+    }
+
+    .last-item {
+      display: flex;
+    }
+
+    .sortable th.dir-d,
+    .sortable th.dir-u,
+    .sortable th:hover {
+      color: #fff;
+    }
+
+    .sortable th.no-sort {
+      pointer-events: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <div class="container">
+      <div class="header">
+        <h1><i class="bi bi-tags-fill"></i> Label Maker</h1>
+        <div style="justify-self: end; margin: auto 0">
+          <button class="btn btn-success" @click="modalToggle" title="Add Card">
+            <i class="bi bi-plus-square-fill"></i></button>&nbsp;
+          <input type="file" ref="file" id="fileUpload" accept=".json" hidden @change="loadJSON" />
+          <button class="btn btn-primary" @click="loadButton()" title="Load JSON"><i
+              class="bi bi-upload"></i></button>&nbsp;
+          <button class="btn btn-primary" @click="saveJSON()" title="Save JSON"><i
+              class="bi bi-download"></i></button>&nbsp;
+          <button class="btn btn-danger position-relative" @click="print()" title="Create PDF">
+
+            <i class="bi bi-file-pdf-fill"></i>
+            <!-- <span
                 class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
                 >{{ currentcards }}</span
               > -->
-            </button>
-          </div>
-          <nav class="nav nav-tabs nav-justified">
-            <a
-              class="nav-link"
-              @click.prevent="setActive('database')"
-              :class="{ active: isActive('database') }"
-              href="#database"
-              >Database
-              <span class="badge bg-secondary">{{dishes.length}}</span></a
-            >
-            <a
-              class="nav-link"
-              @click.prevent="setActive('print')"
-              :class="{ active: isActive('print') }"
-              href="#print"
-              >Preview
-              <span class="badge bg-danger">{{cards.length}}</span></a
-              ></a
-            >
-          </nav>
-          <div style="margin-left: 10pt">
-            <div
-              v-if="isActive('database')"
-              class="form-group position-relative"
-            >
-              <input
-                v-model="search"
-                type="text"
-                class="form-control"
-                placeholder="Search..."
-              />
-              <button
-                v-if="search"
-                type="button"
-                class="btn bg-transparent"
-                style="
+          </button>
+        </div>
+        <nav class="nav nav-tabs nav-justified">
+          <a class="nav-link" @click.prevent="setActive('database')" :class="{ active: isActive('database') }"
+            href="#database">Database
+            <span class="badge bg-secondary">{{dishes.length}}</span></a>
+          <a class="nav-link" @click.prevent="setActive('print')" :class="{ active: isActive('print') }"
+            href="#print">Preview
+            <span class="badge bg-danger">{{cards.length}}</span></a></a>
+        </nav>
+        <div style="margin-left: 10pt">
+          <div v-if="isActive('database')" class="form-group position-relative">
+            <input v-model="search" type="text" class="form-control" placeholder="Search..." />
+            <button v-if="search" type="button" class="btn bg-transparent" style="
                   position: absolute;
                   right: 0;
                   top: 0;
                   z-index: 100;
                   color: rgba(0, 0, 0, 0.5);
                   border: none;
-                "
-                @click="search = ''"
-              >
-                <i class="bi bi-x-circle-fill"></i>
-              </button>
-            </div>
+                " @click="search = ''">
+              <i class="bi bi-x-circle-fill"></i>
+            </button>
           </div>
         </div>
+      </div>
 
-        <!-- <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#dishModal">Add Dish</button> -->
-        <div class="tab-content py-3" id="myTabContent">
-          <div
-            id="print"
-            class="tab-pane fade"
-            :class="{ 'active show': isActive('print') }"
-          >
+      <!-- <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#dishModal">Add Dish</button> -->
+      <div class="tab-content py-3" id="myTabContent">
+        <div id="print" class="tab-pane fade" :class="{ 'active show': isActive('print') }">
           <div class="d-flex flex-row-reverse mb-3">
             <button type="button" class="btn btn-danger float-right" @click="deleteAllCards()">Delete All</button>
           </div>
-            <div class="printable">
-              <div
-                class="hilton-card"
-                v-for="(card, index) in cards"
-                :key="index"
-                @click="deleteCard(index)"
-              >
-                <div class="hilton-item">
-                  <strong v-if="card.germanTextBold"
-                    >{{ card.germanTextBold }}</strong
-                  >
-                  <p>{{ card.germanText }}</p>
-                </div>
-                <hr />
-                <div class="hilton-item">
-                  <strong v-if="card.englishTextBold"
-                    >{{ card.englishTextBold }}</strong
-                  >
-                  <p>{{ card.englishText }}</p>
-                </div>
-                <div class="hilton-item">
-                  <div class="icons">
-                    <div class="diets">
-                      <div class="icon" v-for="diet in card.diets">
-                        <img
-                          :src="'data:image/png;base64,' + 
-                          hImages[diets[diet].toLowerCase()]"
-                          height="50"
-                        />
-                        <!-- <div class="bottom-center">{{diets[diet]}}</div> -->
-                      </div>
-                      <!-- <i :class="diets[diet].toLowerCase() + ' hilton-icon'"  v-for="diet in card.diets"></i> -->
+          <div class="printable">
+            <div class="hilton-card" v-for="(card, index) in cards" :key="index" @click="deleteCard(index)">
+              <div class="hilton-item">
+                <strong v-if="card.germanTextBold">{{ card.germanTextBold }}</strong>
+                <p>{{ card.germanText }}</p>
+              </div>
+              <hr />
+              <div class="hilton-item">
+                <strong v-if="card.englishTextBold">{{ card.englishTextBold }}</strong>
+                <p>{{ card.englishText }}</p>
+              </div>
+              <div class="hilton-item">
+                <div class="icons">
+                  <div class="diets">
+                    <div class="icon" v-for="diet in card.diets">
+                      <img :src="'data:image/png;base64,' + 
+                          hImages[diets[diet].toLowerCase()]" height="50" />
+                      <!-- <div class="bottom-center">{{diets[diet]}}</div> -->
                     </div>
-                    <div class="allergens">
-                      <div class="icon" v-for="allergen in card.allergens">
-                        <img
-                          :src="'data:image/png;base64,' + 
-                          hImages[allergens[allergen].toLowerCase()]"
-                          height="50"
-                        />
-                        <div class="bottom-center">{{allergens[allergen]}}</div>
-                      </div>
+                    <!-- <i :class="diets[diet].toLowerCase() + ' hilton-icon'"  v-for="diet in card.diets"></i> -->
+                  </div>
+                  <div class="allergens">
+                    <div class="icon" v-for="allergen in card.allergens">
+                      <img :src="'data:image/png;base64,' + 
+                          hImages[allergens[allergen].toLowerCase()]" height="50" />
+                      <div class="bottom-center">{{allergens[allergen]}}</div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          <div
-            class="tab-pane fade"
-            :class="{ 'active show': isActive('database') }"
-            id="database"
-          >
-            <table class="table">
-              <tr>
-                <td class="col-1">{{lastDish.id}}</td>
-                <td class="col-1">{{lastDish.tags ? lastDish.tags.join(", ") : "" }}</td>
-                <td class="col-2">{{lastDish.category}}</td>
-                <td class="col-3">
-                  <strong v-if="lastDish.germanTextBold"
-                    >{{ lastDish.germanTextBold }}</strong
-                  >
-                  {{lastDish.germanText}}
-                </td>
-                <td class="col-3">
-                  <strong v-if="lastDish.englishTextBold"
-                    >{{ lastDish.englishTextBold }}</strong
-                  >
-                  {{lastDish.englishText}}
-                </td>
-                <td class="col-2 text-center">
-                  <button
-                    type="button"
-                    class="btn btn-danger"
-                    @click="deleteDish(lastDish.id)"
-                  >
-                  <i class="bi bi-trash3-fill"></i></button
-                  >&nbsp;
-                  <button
-                    type="button"
-                    class="btn btn-primary"
-                    @click="editDish(lastDish.id)"
-                  >
-                  <i class="bi bi-pencil-square"></i></button
-                  >&nbsp;
-                  <button
-                    type="button"
-                    class="btn btn-success"
-                    @click="addToCards(lastDish.id, $event)"
-                  >
+        </div>
+        <div class="tab-pane fade" :class="{ 'active show': isActive('database') }" id="database">
+          <table class="table">
+            <tr>
+              <td class="col-1">{{lastDish.id}}</td>
+              <td class="col-1">{{lastDish.tags ? lastDish.tags.join(", ") : "" }}</td>
+              <td class="col-2">{{lastDish.category}}</td>
+              <td class="col-3">
+                <strong v-if="lastDish.germanTextBold">{{ lastDish.germanTextBold }}</strong>
+                {{lastDish.germanText}}
+              </td>
+              <td class="col-3">
+                <strong v-if="lastDish.englishTextBold">{{ lastDish.englishTextBold }}</strong>
+                {{lastDish.englishText}}
+              </td>
+              <td class="col-2 text-center">
+                <button type="button" class="btn btn-danger" @click="deleteDish(lastDish.id)">
+                  <i class="bi bi-trash3-fill"></i></button>&nbsp;
+                <button type="button" class="btn btn-primary" @click="editDish(lastDish.id)">
+                  <i class="bi bi-pencil-square"></i></button>&nbsp;
+                <button type="button" class="btn btn-success" @click="addToCards(lastDish.id, $event)">
                   <i class="bi bi-plus-lg"></i>
+                </button>
+              </td>
+            </tr>
+          </table>
+          <div class="d-flex flex-row-reverse mb-3">
+            <button type="button" class="btn btn-success float-right" @click="addAllToCards()">Add All</button>
+          </div>
+          <table class="table">
+            <thead class="table-dark" style="position: sticky; top: 100px">
+              <tr>
+                <th @click="sort('id')" class="col-1">ID <i v-if="currentSort=='id'" class="bi"
+                    :class="currentSortDir=='asc'?'bi-sort-up':'bi-sort-down'"></i></th>
+                <th @click="sort('tags')" class="col-1">Tags <i v-if="currentSort=='tags'" class="bi"
+                    :class="currentSortDir=='asc'?'bi-sort-up':'bi-sort-down'"></i></th>
+                <th @click="sort('category')" class="col-2">Category <i v-if="currentSort=='category'" class="bi"
+                    :class="currentSortDir=='asc'?'bi-sort-up':'bi-sort-down'"></i></th>
+                <th @click="sort('german')" class="col-3">German <i v-if="currentSort=='german'" class="bi"
+                    :class="currentSortDir=='asc'?'bi-sort-up':'bi-sort-down'"></i></th>
+                <th @click="sort('english')" class="col-3">English <i v-if="currentSort=='english'" class="bi"
+                    :class="currentSortDir=='asc'?'bi-sort-up':'bi-sort-down'"></i></th>
+                <th class="col-2 no-sort text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="dish in sortedDishes" :key="dish.id">
+                <td>{{dish.id}}</td>
+                <td>{{dish.tags ? dish.tags.join(", ") : ""}}</td>
+                <td>{{dish.category}}</td>
+                <td>
+                  <strong v-if="dish.germanTextBold">{{ dish.germanTextBold }}</strong>
+                  {{ dish.germanText }}
+                </td>
+                <td>
+                  <strong v-if="dish.englishTextBold">{{ dish.englishTextBold }}</strong>
+                  {{ dish.englishText }}
+                </td>
+                <td class="text-center">
+                  <button type="button" class="btn btn-danger" @click="deleteDish(dish.id)">
+                    <i class="bi bi-trash3-fill"></i></button>&nbsp;
+                  <button type="button" class="btn btn-primary" @click="editDish(dish.id)">
+                    <i class="bi bi-pencil-square"></i></button>&nbsp;
+                  <button type="button" class="btn btn-success" @click="addToCards(dish.id, $event)">
+                    <i class="bi bi-plus-lg"></i>
                   </button>
                 </td>
               </tr>
-            </table>
-            <div class="d-flex flex-row-reverse mb-3">
-              <button type="button" class="btn btn-success float-right" @click="addAllToCards()">Add All</button>
-            </div>
-            <table class="table">
-              <thead class="table-dark" style="position: sticky; top: 100px">
-                <tr>
-                  <th @click="sort('id')" class="col-1">ID <i v-if="currentSort=='id'" class="bi" :class="currentSortDir=='asc'?'bi-sort-up':'bi-sort-down'"></i></th>
-                  <th @click="sort('tags')" class="col-1">Tags <i v-if="currentSort=='tags'" class="bi" :class="currentSortDir=='asc'?'bi-sort-up':'bi-sort-down'"></i></th>
-                  <th @click="sort('category')" class="col-2">Category <i v-if="currentSort=='category'" class="bi" :class="currentSortDir=='asc'?'bi-sort-up':'bi-sort-down'"></i></th>
-                  <th @click="sort('german')" class="col-3">German <i v-if="currentSort=='german'" class="bi" :class="currentSortDir=='asc'?'bi-sort-up':'bi-sort-down'"></i></th>
-                  <th @click="sort('english')" class="col-3">English <i v-if="currentSort=='english'" class="bi" :class="currentSortDir=='asc'?'bi-sort-up':'bi-sort-down'"></i></th>
-                  <th class="col-2 no-sort text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="dish in sortedDishes" :key="dish.id">
-                  <td>{{dish.id}}</td>
-                  <td>{{dish.tags ? dish.tags.join(", ") : ""}}</td>
-                  <td>{{dish.category}}</td>
-                  <td>
-                    <strong v-if="dish.germanTextBold"
-                      >{{ dish.germanTextBold }}</strong
-                    > 
-                    {{ dish.germanText }}
-                  </td>
-                  <td>
-                    <strong v-if="dish.englishTextBold"
-                      >{{ dish.englishTextBold }}</strong
-                    >
-                    {{ dish.englishText }}
-                  </td>
-                  <td class="text-center">
-                    <button
-                      type="button"
-                      class="btn btn-danger"
-                      @click="deleteDish(dish.id)"
-                    >
-                    <i class="bi bi-trash3-fill"></i></button>&nbsp;
-                    <button
-                      type="button"
-                      class="btn btn-primary"
-                      @click="editDish(dish.id)"
-                    >
-                    <i class="bi bi-pencil-square"></i></button>&nbsp;
-                    <button
-                      type="button"
-                      class="btn btn-success"
-                      @click="addToCards(dish.id, $event)"
-                    >
-                    <i class="bi bi-plus-lg"></i>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+            </tbody>
+          </table>
         </div>
       </div>
-      <div
-        id="dishModal"
-        class="modal fade"
-        :class="{ show: modalShow, 'd-block': modalShow }"
-        tabindex="-1"
-        role="dialog"
-      >
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Add Dish</h5>
+    </div>
+    <div id="dishModal" class="modal fade" :class="{ show: modalShow, 'd-block': modalShow }" tabindex="-1"
+      role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Add Dish</h5>
 
-              <button
-                type="button"
-                @click="closeDish()"
-                class="btn-close"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div class="modal-body">
-              <div class="form-group">
-                <h5>Dish</h5>
-                <div class="mb-3">
-                  <label for="germanTextBold"
-                    ><strong>German Text Bold</strong></label
-                  >
-                  <input
-                    type="text"
-                    id="germanTextBold"
-                    class="form-control"
-                    v-model="dish.germanTextBold"
-                  />
+            <button type="button" @click="closeDish()" class="btn-close" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <h5>Dish</h5>
+              <div class="mb-3">
+                <label for="germanTextBold"><strong>German Text Bold</strong></label>
+                <input type="text" id="germanTextBold" class="form-control" v-model="dish.germanTextBold" />
+              </div>
+              <div class="mb-3">
+                <label for="germanText">German Text</label>
+                <input type="text" id="germanText" class="form-control" v-model="dish.germanText" />
+              </div>
+              <div class="mb-3">
+                <label for="englishTextBold"><strong>English Text Bold</strong></label>
+                <input type="text" id="englishTextBold" class="form-control" v-model="dish.englishTextBold" />
+              </div>
+              <div class="mb-3">
+                <label for="englishText">English Text</label>
+                <input type="text" id="englishText" class="form-control" v-model="dish.englishText" />
+              </div>
+              <div class="mb-3">
+                <label for="categories">Category</label>
+                <div class="input-group">
+                  <input type="text" class="form-control" v-model="dish.category" />
+                  <button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split"
+                    data-bs-toggle="dropdown" aria-expanded="false" data-bs-reference="parent"
+                    :disabled="categories.length < 1">
+                    <span class="visually-hidden">Toggle Dropdown</span>
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li v-for="category in categories">
+                      <a href="#" class="dropdown-item" @click.prevent="dish.category = category">{{category}}</a>
+                    </li>
+                  </ul>
                 </div>
-                <div class="mb-3">
-                  <label for="germanText">German Text</label>
-                  <input
-                    type="text"
-                    id="germanText"
-                    class="form-control"
-                    v-model="dish.germanText"
-                  />
+              </div>
+              <div class="mb-3">
+                <label for="tags">Tags</label>
+                <input type="text" id="tags" class="form-control" v-model="dish.tags" />
+              </div>
+              <div class="mb-3">
+                <h5>Allergens</h5>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="glutenCheckbox" value="a"
+                    v-model="dish.allergens" />
+                  <label class="form-check-label" for="glutenCheckbox">Gluten</label>
                 </div>
-                <div class="mb-3">
-                  <label for="englishTextBold"
-                    ><strong>English Text Bold</strong></label
-                  >
-                  <input
-                    type="text"
-                    id="englishTextBold"
-                    class="form-control"
-                    v-model="dish.englishTextBold"
-                  />
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="crustaceansCheckbox" value="b"
+                    v-model="dish.allergens" />
+                  <label class="form-check-label" for="crustaceansCheckbox">Crustaceans</label>
                 </div>
-                <div class="mb-3">
-                  <label for="englishText">English Text</label>
-                  <input
-                    type="text"
-                    id="englishText"
-                    class="form-control"
-                    v-model="dish.englishText"
-                  />
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="eggCheckbox" value="c" v-model="dish.allergens" />
+                  <label class="form-check-label" for="eggCheckbox">Egg</label>
                 </div>
-                <div class="mb-3">
-                  <label for="categories">Category</label>
-                  <div class="input-group">
-                    <input
-                      type="text"
-                      class="form-control"
-                      v-model="dish.category"
-                    />
-                    <button
-                      type="button"
-                      class="btn btn-secondary dropdown-toggle dropdown-toggle-split"
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
-                      data-bs-reference="parent"
-                      :disabled="categories.length < 1"
-                    >
-                      <span class="visually-hidden">Toggle Dropdown</span>
-                    </button>
-                    <ul class="dropdown-menu">
-                      <li v-for="category in categories">
-                        <a
-                          href="#"
-                          class="dropdown-item"
-                          @click.prevent="dish.category = category"
-                          >{{category}}</a
-                        >
-                      </li>
-                    </ul>
-                  </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="fishCheckbox" value="d"
+                    v-model="dish.allergens" />
+                  <label class="form-check-label" for="fishCheckbox">Fish</label>
                 </div>
-                <div class="mb-3">
-                  <label for="tags">Tags</label>
-                  <input
-                    type="text"
-                    id="tags"
-                    class="form-control"
-                    v-model="dish.tags"
-                  />
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="peanutsCheckbox" value="e"
+                    v-model="dish.allergens" />
+                  <label class="form-check-label" for="peanutsCheckbox">Peanuts</label>
                 </div>
-                <div class="mb-3">
-                  <h5>Allergens</h5>
-                  <div class="form-check form-check-inline">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="glutenCheckbox"
-                      value="a"
-                      v-model="dish.allergens"
-                    />
-                    <label class="form-check-label" for="glutenCheckbox"
-                      >Gluten</label
-                    >
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="crustaceansCheckbox"
-                      value="b"
-                      v-model="dish.allergens"
-                    />
-                    <label class="form-check-label" for="crustaceansCheckbox"
-                      >Crustaceans</label
-                    >
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="eggCheckbox"
-                      value="c"
-                      v-model="dish.allergens"
-                    />
-                    <label class="form-check-label" for="eggCheckbox"
-                      >Egg</label
-                    >
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="fishCheckbox"
-                      value="d"
-                      v-model="dish.allergens"
-                    />
-                    <label class="form-check-label" for="fishCheckbox"
-                      >Fish</label
-                    >
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="peanutsCheckbox"
-                      value="e"
-                      v-model="dish.allergens"
-                    />
-                    <label class="form-check-label" for="peanutsCheckbox"
-                      >Peanuts</label
-                    >
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="soyaCheckbox"
-                      value="f"
-                      v-model="dish.allergens"
-                    />
-                    <label class="form-check-label" for="soyaCheckbox"
-                      >Soya</label
-                    >
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="milkCheckbox"
-                      value="g"
-                      v-model="dish.allergens"
-                    />
-                    <label class="form-check-label" for="milkCheckbox"
-                      >Dairy</label
-                    >
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="nutsCheckbox"
-                      value="h"
-                      v-model="dish.allergens"
-                    />
-                    <label class="form-check-label" for="nutsCheckbox"
-                      >Nuts</label
-                    >
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="celeryCheckbox"
-                      value="l"
-                      v-model="dish.allergens"
-                    />
-                    <label class="form-check-label" for="celeryCheckbox"
-                      >Celery</label
-                    >
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="mustardCheckbox"
-                      value="m"
-                      v-model="dish.allergens"
-                    />
-                    <label class="form-check-label" for="mustardCheckbox"
-                      >Mustard</label
-                    >
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="sesameCheckbox"
-                      value="n"
-                      v-model="dish.allergens"
-                    />
-                    <label class="form-check-label" for="sesameCheckbox"
-                      >Sesame</label
-                    >
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="sulphiteCheckbox"
-                      value="o"
-                      v-model="dish.allergens"
-                    />
-                    <label class="form-check-label" for="sulphiteCheckbox"
-                      >Sulphite</label
-                    >
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="lupinCheckbox"
-                      value="p"
-                      v-model="dish.allergens"
-                    />
-                    <label class="form-check-label" for="lupinCheckbox"
-                      >Lupin</label
-                    >
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="molluscsCheckbox"
-                      value="r"
-                      v-model="dish.allergens"
-                    />
-                    <label class="form-check-label" for="molluscsCheckbox"
-                      >Molluscs</label
-                    >
-                  </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="soyaCheckbox" value="f"
+                    v-model="dish.allergens" />
+                  <label class="form-check-label" for="soyaCheckbox">Soya</label>
                 </div>
-                <div class="mb-3">
-                  <h5>Diet</h5>
-                  <div class="form-check form-check-inline">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="vegetarianCheckbox"
-                      value="a"
-                      v-model="dish.diets"
-                    />
-                    <label class="form-check-label" for="vegetarianCheckbox"
-                      >Vegetarian</label
-                    >
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="veganCheckbox"
-                      value="b"
-                      v-model="dish.diets"
-                    />
-                    <label class="form-check-label" for="veganCheckbox"
-                      >Vegan</label
-                    >
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="porkCheckbox"
-                      value="c"
-                      v-model="dish.diets"
-                    />
-                    <label class="form-check-label" for="porkCheckbox"
-                      >Pork</label
-                    >
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="halalCheckbox"
-                      value="d"
-                      v-model="dish.diets"
-                    />
-                    <label class="form-check-label" for="halalCheckbox"
-                      >Halal</label
-                    >
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="glutenFreeCheckbox"
-                      value="e"
-                      v-model="dish.diets"
-                    />
-                    <label class="form-check-label" for="glutenFreeCheckbox"
-                      >Gluten free</label
-                    >
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="lactoseFreeCheckbox"
-                      value="f"
-                      v-model="dish.diets"
-                    />
-                    <label class="form-check-label" for="lactoseFreeCheckbox"
-                      >Lactose free</label
-                    >
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="austrianCheckbox"
-                      value="g"
-                      v-model="dish.diets"
-                    />
-                    <label class="form-check-label" for="austrianCheckbox"
-                      >Austrian</label
-                    >
-                  </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="milkCheckbox" value="g"
+                    v-model="dish.allergens" />
+                  <label class="form-check-label" for="milkCheckbox">Dairy</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="nutsCheckbox" value="h"
+                    v-model="dish.allergens" />
+                  <label class="form-check-label" for="nutsCheckbox">Nuts</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="celeryCheckbox" value="l"
+                    v-model="dish.allergens" />
+                  <label class="form-check-label" for="celeryCheckbox">Celery</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="mustardCheckbox" value="m"
+                    v-model="dish.allergens" />
+                  <label class="form-check-label" for="mustardCheckbox">Mustard</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="sesameCheckbox" value="n"
+                    v-model="dish.allergens" />
+                  <label class="form-check-label" for="sesameCheckbox">Sesame</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="sulphiteCheckbox" value="o"
+                    v-model="dish.allergens" />
+                  <label class="form-check-label" for="sulphiteCheckbox">Sulphite</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="lupinCheckbox" value="p"
+                    v-model="dish.allergens" />
+                  <label class="form-check-label" for="lupinCheckbox">Lupin</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="molluscsCheckbox" value="r"
+                    v-model="dish.allergens" />
+                  <label class="form-check-label" for="molluscsCheckbox">Molluscs</label>
+                </div>
+              </div>
+              <div class="mb-3">
+                <h5>Diet</h5>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="vegetarianCheckbox" value="a"
+                    v-model="dish.diets" />
+                  <label class="form-check-label" for="vegetarianCheckbox">Vegetarian</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="veganCheckbox" value="b" v-model="dish.diets" />
+                  <label class="form-check-label" for="veganCheckbox">Vegan</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="porkCheckbox" value="c" v-model="dish.diets" />
+                  <label class="form-check-label" for="porkCheckbox">Pork</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="halalCheckbox" value="d" v-model="dish.diets" />
+                  <label class="form-check-label" for="halalCheckbox">Halal</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="glutenFreeCheckbox" value="e"
+                    v-model="dish.diets" />
+                  <label class="form-check-label" for="glutenFreeCheckbox">Gluten free</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="lactoseFreeCheckbox" value="f"
+                    v-model="dish.diets" />
+                  <label class="form-check-label" for="lactoseFreeCheckbox">Lactose free</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="austrianCheckbox" value="g"
+                    v-model="dish.diets" />
+                  <label class="form-check-label" for="austrianCheckbox">Austrian</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="indianVegCheckbox" value="h"
+                    v-model="dish.diets" />
+                  <label class="form-check-label" for="indianVegCheckbox">Indian Veg</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="indianNonVegCheckbox" value="i"
+                    v-model="dish.diets" />
+                  <label class="form-check-label" for="indianNonVegCheckbox">Indian Non Veg</label>
                 </div>
               </div>
             </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-primary" @click="saveDish()">
-                Save changes
-              </button>
-              <button
-                type="button"
-                ref="Close"
-                @click="closeDish()"
-                class="btn btn-secondary"
-              >
-                Close
-              </button>
-            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" @click="saveDish()">
+              Save changes
+            </button>
+            <button type="button" ref="Close" @click="closeDish()" class="btn btn-secondary">
+              Close
+            </button>
           </div>
         </div>
       </div>
-      <div v-if="modalShow" class="modal-backdrop fade show"></div>
     </div>
-    <script>
-      const { createApp } = Vue;
-      const { jsPDF } = jspdf;
-      createApp({
-        data() {
-          return {
-            diets: {
-              a: "Vegetarian",
-              b: "Vegan",
-              c: "Pork",
-              d: "Halal",
-              e: "Gluten-free",
-              f: "Lactose-free",
-              g: "Austrian"
-            },
-            allergens: {
-              a: "Gluten",
-              b: "Crustaceans",
-              c: "Egg",
-              d: "Fish",
-              e: "Peanuts",
-              f: "Soya",
-              g: "Dairy",
-              h: "Nuts",
-              l: "Celery",
-              m: "Mustard",
-              n: "Sesame",
-              o: "Sulphite",
-              p: "Lupin",
-              r: "Molluscs"
-            },
-            maxcards: 6,
-            currentcards: 0,
-            cards: [],
-            search: "",
-            modalShow: false,
-            modalTitle: "",
-            dishes: [],
-            currentSort: "id",
-            currentSortDir: "desc",
-            dish: {
-              germanTextBold: "",
-              germanText: "",
-              englishTextBold: "",
-              englishText: "",
-              allergens: [],
-              diets: [],
-              category: "",
-              tags: ""
-            },
-            activeItem: "database",
-            hImages: hImages
-          };
-        },
-        methods: {
-          sort(name) {
-            if(name === this.currentSort) {
-              this.currentSortDir = this.currentSortDir==='asc'?'desc':'asc'
-            }
-            this.currentSort = name;
+    <div v-if="modalShow" class="modal-backdrop fade show"></div>
+  </div>
+  <script>
+    const { createApp } = Vue;
+    const { jsPDF } = jspdf;
+    createApp({
+      data() {
+        return {
+          diets: {
+            a: "Vegetarian",
+            b: "Vegan",
+            c: "Pork",
+            d: "Halal",
+            e: "Gluten-free",
+            f: "Lactose-free",
+            g: "Austrian",
+            h: "Indian-Vegetarian",
+            i: "Indian-Non-Vegetarian"
           },
-          addToCards(dishId, e) {
-            let index = this.dishes.findIndex((dish) => dish.id === dishId);
-            if (e.shiftKey) {
-              [...Array(6)].forEach(() => {
-                this.cards.push(this.dishes[index]);
-                this.currentcards++;
-              });
-            } else {
+          allergens: {
+            a: "Gluten",
+            b: "Crustaceans",
+            c: "Egg",
+            d: "Fish",
+            e: "Peanuts",
+            f: "Soya",
+            g: "Dairy",
+            h: "Nuts",
+            l: "Celery",
+            m: "Mustard",
+            n: "Sesame",
+            o: "Sulphite",
+            p: "Lupin",
+            r: "Molluscs"
+          },
+          maxcards: 6,
+          currentcards: 0,
+          cards: [],
+          search: "",
+          modalShow: false,
+          modalTitle: "",
+          dishes: [],
+          currentSort: "id",
+          currentSortDir: "desc",
+          dish: {
+            germanTextBold: "",
+            germanText: "",
+            englishTextBold: "",
+            englishText: "",
+            allergens: [],
+            diets: [],
+            category: "",
+            tags: ""
+          },
+          activeItem: "database",
+          hImages: hImages
+        };
+      },
+      methods: {
+        sort(name) {
+          if (name === this.currentSort) {
+            this.currentSortDir = this.currentSortDir === 'asc' ? 'desc' : 'asc'
+          }
+          this.currentSort = name;
+        },
+        addToCards(dishId, e) {
+          let index = this.dishes.findIndex((dish) => dish.id === dishId);
+          if (e.shiftKey) {
+            [...Array(6)].forEach(() => {
               this.cards.push(this.dishes[index]);
               this.currentcards++;
-            }
-          },
-          addAllToCards(e) {
-            this.filteredDishes.forEach((dish) => {
-              console.log(dish)
-              this.cards.push(dish)
-              this.currentcards++
-            })
-          },
-          deleteCard(idx) {
-            this.cards.splice(idx, 1);
-            this.currentcards--;
-          },
-          deleteDish(dishId) {
-            if (confirm("Do you really want to delete this item?")) {
-              this.dishes = this.dishes.filter((dish) => dish.id !== dishId);
-            }
-            this.saveLocalStorage();
-          },
-          deleteAllCards() {
-            if (confirm("Do you really want to remove all labels?")) {
-              this.cards = [];
-              this.currentcards = 0;
-            }
-          },
-          print() {
-            const doc = jsPDF();
-            const x = 7.5;
-            const y = 33.5;
-            const cardCellHeight = 38;
-            const cardWidth = 65;
-            const cardHeight = 115;
-            const maxIconSize = 11;
-            const maxTextWidth = 55;
-            const maxColumns = 3;
-            const textOpts = { align: "center", maxWidth: maxTextWidth };
-            const d = new Date();
+            });
+          } else {
+            this.cards.push(this.dishes[index]);
+            this.currentcards++;
+          }
+        },
+        addAllToCards(e) {
+          this.filteredDishes.forEach((dish) => {
+            console.log(dish)
+            this.cards.push(dish)
+            this.currentcards++
+          })
+        },
+        deleteCard(idx) {
+          this.cards.splice(idx, 1);
+          this.currentcards--;
+        },
+        deleteDish(dishId) {
+          if (confirm("Do you really want to delete this item?")) {
+            this.dishes = this.dishes.filter((dish) => dish.id !== dishId);
+          }
+          this.saveLocalStorage();
+        },
+        deleteAllCards() {
+          if (confirm("Do you really want to remove all labels?")) {
+            this.cards = [];
+            this.currentcards = 0;
+          }
+        },
+        print() {
+          const doc = jsPDF();
+          const x = 7.5;
+          const y = 33.5;
+          const cardCellHeight = 38;
+          const cardWidth = 65;
+          const cardHeight = 115;
+          const maxIconSize = 11;
+          const maxTextWidth = 55;
+          const maxColumns = 3;
+          const textOpts = { align: "center", maxWidth: maxTextWidth };
+          const d = new Date();
 
-            // set font
-            // first inject it then set it
-            //doc.addFileToVFS('filename', base64);
-            //doc.setFont("Loew 2.0");
+          // set font
+          // first inject it then set it
+          //doc.addFileToVFS('filename', base64);
+          //doc.setFont("Loew 2.0");
 
-            let xMultiplier = 0;
-            let yMultiplier = 0;
-            for (let i = 0; i < this.cards.length; i++) {
-              let lines = 1;
-              doc.rect(
-                x + cardWidth * xMultiplier,
-                y + cardHeight * yMultiplier,
-                cardWidth,
-                cardHeight
+          let xMultiplier = 0;
+          let yMultiplier = 0;
+          for (let i = 0; i < this.cards.length; i++) {
+            let lines = 1;
+            doc.rect(
+              x + cardWidth * xMultiplier,
+              y + cardHeight * yMultiplier,
+              cardWidth,
+              cardHeight
+            );
+            // doc.line(x+(cardWidth*xMultiplier)+10,y+(cardHeight*yMultiplier)+38/2,x+(cardWidth*xMultiplier)+10+45,y+(cardHeight*yMultiplier)+38/2);
+            doc.line(
+              x + cardWidth * xMultiplier + 10,
+              y + cardHeight * yMultiplier + 38,
+              x + cardWidth * xMultiplier + 10 + 45,
+              y + cardHeight * yMultiplier + 38
+            );
+            // doc.line(x+(cardWidth*xMultiplier)+10,y+(cardHeight*yMultiplier)+38*2,x+(cardWidth*xMultiplier)+10+45,y+(cardHeight*yMultiplier)+38*2);
+            doc.setFontSize(14);
+
+            // Top row
+            let linesGermanBold = 0;
+            if (this.cards[i].germanTextBold) {
+              let dimensionGermanTextBold = doc.getTextDimensions(
+                this.cards[i].germanTextBold
               );
-              // doc.line(x+(cardWidth*xMultiplier)+10,y+(cardHeight*yMultiplier)+38/2,x+(cardWidth*xMultiplier)+10+45,y+(cardHeight*yMultiplier)+38/2);
-              doc.line(
-                x + cardWidth * xMultiplier + 10,
-                y + cardHeight * yMultiplier + 38,
-                x + cardWidth * xMultiplier + 10 + 45,
-                y + cardHeight * yMultiplier + 38
-              );
-              // doc.line(x+(cardWidth*xMultiplier)+10,y+(cardHeight*yMultiplier)+38*2,x+(cardWidth*xMultiplier)+10+45,y+(cardHeight*yMultiplier)+38*2);
-              doc.setFontSize(14);
-
-              // Top row
-              let linesGermanBold = 0;
-              if (this.cards[i].germanTextBold) {
-                let dimensionGermanTextBold = doc.getTextDimensions(
-                  this.cards[i].germanTextBold
+              if (dimensionGermanTextBold.w / maxTextWidth > 1) {
+                linesGermanBold = Math.ceil(
+                  dimensionGermanTextBold.w / maxTextWidth
                 );
-                if (dimensionGermanTextBold.w / maxTextWidth > 1) {
-                  linesGermanBold = Math.ceil(
-                    dimensionGermanTextBold.w / maxTextWidth
-                  );
-                } else {
-                  linesGermanBold = 1;
-                }
+              } else {
+                linesGermanBold = 1;
               }
-              let linesGerman = 0;
-              let dimensionGerman = doc.getTextDimensions(
-                this.cards[i].germanText
-              );
-              if (dimensionGerman.w / maxTextWidth > 1) {
-                linesGerman = Math.ceil(dimensionGerman.w / maxTextWidth);
-              }
-              // text bold
-              if (this.cards[i].germanTextBold) {
-                doc.setFont(undefined, "bold");
-                doc.text(
-                  this.cards[i].germanTextBold,
-                  x + cardWidth / 2 + cardWidth * xMultiplier,
-                  y +
-                    cardHeight * yMultiplier +
-                    38 / 2 +
-                    (doc.getLineHeight() * 25.4) / 72 / 2 -
-                    (doc.getLineHeight() *
-                      (linesGermanBold + linesGerman) *
-                      25.4) /
-                      72 /
-                      2 +
-                    (doc.getLineHeight() * linesGermanBold * 25.4) / 72 / 2,
-                  textOpts
-                );
-                doc.setFont(undefined, "normal");
-              }
-              // text normal
+            }
+            let linesGerman = 0;
+            let dimensionGerman = doc.getTextDimensions(
+              this.cards[i].germanText
+            );
+            if (dimensionGerman.w / maxTextWidth > 1) {
+              linesGerman = Math.ceil(dimensionGerman.w / maxTextWidth);
+            }
+            // text bold
+            if (this.cards[i].germanTextBold) {
+              doc.setFont(undefined, "bold");
               doc.text(
-                this.cards[i].germanText,
+                this.cards[i].germanTextBold,
                 x + cardWidth / 2 + cardWidth * xMultiplier,
                 y +
-                  cardHeight * yMultiplier +
-                  38 / 2 +
-                  (doc.getLineHeight() * 25.4) / 72 / 2 -
-                  (doc.getLineHeight() *
-                    (linesGermanBold + linesGerman) *
-                    25.4) /
-                    72 /
-                    2 +
-                  (doc.getLineHeight() * linesGermanBold * 25.4) / 72 / 2 +
-                  (doc.getLineHeight() * linesGermanBold * 25.4) / 72,
+                cardHeight * yMultiplier +
+                38 / 2 +
+                (doc.getLineHeight() * 25.4) / 72 / 2 -
+                (doc.getLineHeight() *
+                  (linesGermanBold + linesGerman) *
+                  25.4) /
+                72 /
+                2 +
+                (doc.getLineHeight() * linesGermanBold * 25.4) / 72 / 2,
                 textOpts
               );
-              // Second row
-              let linesEnglishBold = 0;
-              if (this.cards[i].englishTextBold) {
-                let dimensionEnglishTextBold = doc.getTextDimensions(
-                  this.cards[i].englishTextBold
+              doc.setFont(undefined, "normal");
+            }
+            // text normal
+            doc.text(
+              this.cards[i].germanText,
+              x + cardWidth / 2 + cardWidth * xMultiplier,
+              y +
+              cardHeight * yMultiplier +
+              38 / 2 +
+              (doc.getLineHeight() * 25.4) / 72 / 2 -
+              (doc.getLineHeight() *
+                (linesGermanBold + linesGerman) *
+                25.4) /
+              72 /
+              2 +
+              (doc.getLineHeight() * linesGermanBold * 25.4) / 72 / 2 +
+              (doc.getLineHeight() * linesGermanBold * 25.4) / 72,
+              textOpts
+            );
+            // Second row
+            let linesEnglishBold = 0;
+            if (this.cards[i].englishTextBold) {
+              let dimensionEnglishTextBold = doc.getTextDimensions(
+                this.cards[i].englishTextBold
+              );
+              if (dimensionEnglishTextBold.w / maxTextWidth > 1) {
+                linesEnglishBold = Math.ceil(
+                  dimensionEnglishTextBold.w / maxTextWidth
                 );
-                if (dimensionEnglishTextBold.w / maxTextWidth > 1) {
-                  linesEnglishBold = Math.ceil(
-                    dimensionEnglishTextBold.w / maxTextWidth
-                  );
-                } else {
-                  linesEnglishBold = 1;
-                }
+              } else {
+                linesEnglishBold = 1;
               }
-              let linesEnglish = 0;
-              let dimEnglish = doc.getTextDimensions(this.cards[i].englishText);
-              if (dimEnglish.w / maxTextWidth > 1) {
-                linesEnglish = Math.ceil(dimEnglish.w / maxTextWidth);
-              }
-              // text bold
-              if (this.cards[i].englishTextBold) {
-                doc.setFont(undefined, "bold");
-                doc.text(
-                  this.cards[i].englishTextBold,
-                  x + cardWidth / 2 + cardWidth * xMultiplier,
-                  y +
-                    cardHeight * yMultiplier +
-                    38 / 2 +
-                    38 +
-                    (doc.getLineHeight() * 25.4) / 72 / 2 -
-                    (doc.getLineHeight() *
-                      (linesEnglishBold + linesEnglish) *
-                      25.4) /
-                      72 /
-                      2 +
-                    (doc.getLineHeight() * linesEnglishBold * 25.4) / 72 / 2,
-                  textOpts
-                );
-                doc.setFont(undefined, "normal");
-              }
-              // text normal
+            }
+            let linesEnglish = 0;
+            let dimEnglish = doc.getTextDimensions(this.cards[i].englishText);
+            if (dimEnglish.w / maxTextWidth > 1) {
+              linesEnglish = Math.ceil(dimEnglish.w / maxTextWidth);
+            }
+            // text bold
+            if (this.cards[i].englishTextBold) {
+              doc.setFont(undefined, "bold");
               doc.text(
-                this.cards[i].englishText,
+                this.cards[i].englishTextBold,
                 x + cardWidth / 2 + cardWidth * xMultiplier,
                 y +
-                  cardHeight * yMultiplier +
-                  38 / 2 +
-                  38 +
-                  (doc.getLineHeight() * 25.4) / 72 / 2 -
-                  (doc.getLineHeight() *
-                    (linesEnglishBold + linesEnglish) *
-                    25.4) /
-                    72 /
-                    2 +
-                  (doc.getLineHeight() * linesEnglishBold * 25.4) / 72 +
-                  (doc.getLineHeight() * linesEnglishBold * 25.4) / 72 / 2,
+                cardHeight * yMultiplier +
+                38 / 2 +
+                38 +
+                (doc.getLineHeight() * 25.4) / 72 / 2 -
+                (doc.getLineHeight() *
+                  (linesEnglishBold + linesEnglish) *
+                  25.4) /
+                72 /
+                2 +
+                (doc.getLineHeight() * linesEnglishBold * 25.4) / 72 / 2,
                 textOpts
               );
-              // bottom row (icons)
-              let dietCount = this.cards[i].diets.length;
-              let allergenCount = this.cards[i].allergens.length;
-              doc.setFontSize(6);
-              // diet icons
-              for (let j = 0; j <= dietCount; j++) {
-                if (this.cards[i].diets[j]) {
+              doc.setFont(undefined, "normal");
+            }
+            // text normal
+            doc.text(
+              this.cards[i].englishText,
+              x + cardWidth / 2 + cardWidth * xMultiplier,
+              y +
+              cardHeight * yMultiplier +
+              38 / 2 +
+              38 +
+              (doc.getLineHeight() * 25.4) / 72 / 2 -
+              (doc.getLineHeight() *
+                (linesEnglishBold + linesEnglish) *
+                25.4) /
+              72 /
+              2 +
+              (doc.getLineHeight() * linesEnglishBold * 25.4) / 72 +
+              (doc.getLineHeight() * linesEnglishBold * 25.4) / 72 / 2,
+              textOpts
+            );
+            // bottom row (icons)
+            let dietCount = this.cards[i].diets.length;
+            let allergenCount = this.cards[i].allergens.length;
+            doc.setFontSize(6);
+            // diet icons
+            for (let j = 0; j <= dietCount; j++) {
+              if (this.cards[i].diets[j]) {
+                var img = new Image();
+                // always use hImages
+                img.src =
+                  "data:image/png;base64," +
+                  hImages[this.diets[this.cards[i].diets[j]].toLowerCase()];
+                doc.addImage(
+                  img,
+                  "png",
+                  x +
+                  cardWidth / 2 +
+                  cardWidth * xMultiplier -
+                  (dietCount * maxIconSize) / 2 +
+                  maxIconSize * j,
+                  y + cardHeight * yMultiplier + 38 / 2 + 33 + (38 / 2 + 5),
+                  maxIconSize,
+                  maxIconSize
+                );
+              }
+            }
+            // allergens icons
+            let allergenMargin = 5;
+            if (dietCount) allergenMargin = 18;
+            // first place the icons
+            let maxIcons = 5;
+            let row = 0;
+            let rows = Math.ceil(allergenCount / maxIcons);
+            let icons = 0;
+            let iconSize = maxIconSize;
+            let idx = 0;
+            for (let row = 0; row < rows; row++) {
+              if (row == 0) {
+                icons = allergenCount - (rows - 1) * maxIcons;
+              } else {
+                icons = maxIcons;
+              }
+              for (let j = 0; j < icons; j++) {
+                if (this.cards[i].allergens[idx]) {
                   var img = new Image();
                   // always use hImages
                   img.src =
                     "data:image/png;base64," +
-                    hImages[this.diets[this.cards[i].diets[j]].toLowerCase()];
+                    hImages[
+                    this.allergens[
+                      this.cards[i].allergens[idx]
+                    ].toLowerCase()
+                    ];
                   doc.addImage(
                     img,
                     "png",
                     x +
-                      cardWidth / 2 +
-                      cardWidth * xMultiplier -
-                      (dietCount * maxIconSize) / 2 +
-                      maxIconSize * j,
-                    y + cardHeight * yMultiplier + 38 / 2 + 33 + (38 / 2 + 5),
-                    maxIconSize,
-                    maxIconSize
+                    cardWidth / 2 +
+                    cardWidth * xMultiplier -
+                    (icons * iconSize) / 2 +
+                    iconSize * j,
+                    y +
+                    cardHeight * yMultiplier +
+                    38 / 2 +
+                    33 +
+                    (38 / 2 + allergenMargin) +
+                    iconSize * row,
+                    iconSize,
+                    iconSize
                   );
+                  idx++;
                 }
-              }
-              // allergens icons
-              let allergenMargin = 5;
-              if (dietCount) allergenMargin = 18;
-              // first place the icons
-              let maxIcons = 5;
-              let row = 0;
-              let rows = Math.ceil(allergenCount / maxIcons);
-              let icons = 0;
-              let iconSize = maxIconSize;
-              let idx = 0;
-              for (let row = 0; row < rows; row++) {
-                if (row == 0) {
-                  icons = allergenCount - (rows - 1) * maxIcons;
-                } else {
-                  icons = maxIcons;
-                }
-                for (let j = 0; j < icons; j++) {
-                  if (this.cards[i].allergens[idx]) {
-                    var img = new Image();
-                    // always use hImages
-                    img.src =
-                      "data:image/png;base64," +
-                      hImages[
-                        this.allergens[
-                          this.cards[i].allergens[idx]
-                        ].toLowerCase()
-                      ];
-                    doc.addImage(
-                      img,
-                      "png",
-                      x +
-                        cardWidth / 2 +
-                        cardWidth * xMultiplier -
-                        (icons * iconSize) / 2 +
-                        iconSize * j,
-                      y +
-                        cardHeight * yMultiplier +
-                        38 / 2 +
-                        33 +
-                        (38 / 2 + allergenMargin) +
-                        iconSize * row,
-                      iconSize,
-                      iconSize
-                    );
-                    idx++;
-                  }
-                }
-              }
-              // second run for text
-              row = 0;
-              rows = Math.ceil(allergenCount / maxIcons);
-              icons = 0;
-              iconSize = maxIconSize;
-              idx = 0;
-              for (let row = 0; row < rows; row++) {
-                if (row == 0) {
-                  icons = allergenCount - (rows - 1) * maxIcons;
-                } else {
-                  icons = maxIcons;
-                }
-                for (let j = 0; j < icons; j++) {
-                  if (this.cards[i].allergens[idx]) {
-                    doc.text(
-                      this.allergens[this.cards[i].allergens[idx]],
-                      x +
-                        cardWidth / 2 +
-                        cardWidth * xMultiplier -
-                        (icons * iconSize) / 2 +
-                        iconSize * j +
-                        iconSize / 2,
-                      y +
-                        cardHeight * yMultiplier +
-                        38 / 2 +
-                        33 +
-                        (38 / 2 + allergenMargin) +
-                        iconSize * row +
-                        iconSize,
-                      textOpts
-                    );
-                    idx++;
-                  }
-                }
-              }
-
-              xMultiplier++;
-              if (xMultiplier >= 3 && yMultiplier == 1) {
-                doc.addPage();
-                xMultiplier = 0;
-                yMultiplier = 0;
-              }
-              if (xMultiplier >= 3) {
-                yMultiplier = 1;
-                xMultiplier = 0;
               }
             }
-            doc.save(`LM_${d.getDay()}${d.getMonth()}${d.getFullYear()}_${d.getHours()}${d.getMinutes()}.pdf`);
-          },
-          addDish() {
-            this.modalTitle = "Add Dish";
-            this.modalShow = true;
-          },
-          modalToggle() {
-            const body = document.querySelector("body");
-            this.modalShow = !this.modalShow;
-            this.modalShow
-              ? body.classList.add("modal-open")
-              : body.classList.remove("modal-open");
-          },
-          editDish(dishId) {
-            this.dish = { ...this.dishes.filter((dish) => dish.id === dishId)[0]}
-            if (this.dish.tags && Array.isArray(this.dish.tags))
-              this.dish.tags = this.dish.tags.join(",")
-            else
-              this.dish.tags = ""
-            this.modalToggle();
-          },
-          saveDish() {
-            if (!this.dish["id"]) {
-              let newId = this.getLastId() + 1;
-              this.dish["id"] = newId;
-              this.dish.tags = this.dish.tags.split(",")
-              this.dishes.push(this.dish);
-              this.modalToggle();
-            } else {
-              let index = this.dishes.findIndex(
-                (dish) => dish.id === this.dish["id"]
-              );
-              this.dish.tags = this.dish.tags.split(",").map(el => el.trim().toLowerCase())
-              this.dishes[index] = this.dish;
-              this.modalToggle();
-            }
-            this.saveLocalStorage();
-            this.dish = {
-              germanTextBold: "",
-              germanText: "",
-              englishTextBold: "",
-              englishText: "",
-              allergens: [],
-              diets: [],
-              category: "",
-              tags: ""
-            };
-            delete this.dish["id"];
-          },
-          closeDish() {
-            this.modalToggle();
-            this.dish = {
-              germanTextBold: "",
-              germanText: "",
-              englishTextBold: "",
-              englishText: "",
-              allergens: [],
-              diets: [],
-              category: "",
-              tags: ""
-            };
-            if (this.dish["id"]) delete this.dish["id"];
-          },
-          getLastId() {
-            return Math.max(...this.dishes.map((dish) => dish.id));
-          },
-          saveLocalStorage() {
-            localStorage.setItem("dishes", JSON.stringify(this.dishes));
-          },
-          loadLocalStorage() {
-            let data = JSON.parse(localStorage.getItem("dishes"));
-            if (data) {
-              this.dishes = data;
-            } else {
-              this.dishes = [
-                {
-                  id: 1,
-                  germanTextBold: "Hummus",
-                  germanText:
-                    "mit roter Bete auf einem Karotten-Sonnenblumen-Mix-Brot",
-                  englishTextBold: "Hummus",
-                  englishText:
-                    "topped with Red Beets on a Carrot-Sunflower mix Bread",
-                  allergens: ["a", "n"],
-                  diets: [],
-                  category: "Main course"
-                }
-              ];
-            }
-          },
-          loadButton() {
-            let fileInput = this.$refs.file;
-            fileInput.click();
-          },
-          saveJSON() {
-            const d = new Date();
-            const day = d.getDate().toString().padStart(2,"0");
-            const month = (d.getMonth()+1).toString().padStart(2,"0");
-            const year = d.getFullYear();
-            const hour = d.getHours().toString().padStart(2,"0");
-            const minute = d.getMinutes().toString().padStart(2,"0");
-            var a = document.createElement("a");
-            var file = new Blob([JSON.stringify(this.dishes)], {
-              type: "application/json"
-            });
-            a.href = URL.createObjectURL(file);
-            a.download = `LM_${day}${month}${year}_${hour}${minute}.json`;
-            a.click();
-          },
-          loadJSON(e) {
-            const file = e.target.files[0];
-            const fileReader = new FileReader();
-            fileReader.readAsText(file);
-            fileReader.onload = (e) => {
-              this.dishes = JSON.parse(e.target.result);
-              this.saveLocalStorage();
-              e.target.value = "";
-            };
-          },
-          isActive(menuItem) {
-            return this.activeItem === menuItem;
-          },
-          setActive(menuItem) {
-            this.activeItem = menuItem;
-          },
-          boldParser(value) {
-            return value.replace(/\*\*([^\*]+)\*\*/, '<strong>$1</strong>')
-          }
-        },
-        computed: {
-          sortedDishes() {
-            return this.filteredDishes.sort((a,b) => {
-              let modifier = 1;
-              if (this.currentSortDir === 'desc') modifier = -1;
-              if (this.currentSort === "german" ){
-                return (a["germanTextBold"]+a["germanText"]).localeCompare((b["germanTextBold"]+b["germanText"])) * modifier;
-              } else if ( this.currentSort === "english" ) {
-                return (a["englishTextBold"]+a["englishText"]).localeCompare(b["englishTextBold"]+b["englishText"]) * modifier;
-              } else if ( this.currentSort === "tags" ){
-                return (a.tags ? a.tags.join(',') : '').localeCompare(b.tags ? b.tags.join(',') : '') * modifier
-              } else if (this.currentSort === "category"){
-                return (a[this.currentSort] ||'').localeCompare(b[this.currentSort] || '') * modifier;
+            // second run for text
+            row = 0;
+            rows = Math.ceil(allergenCount / maxIcons);
+            icons = 0;
+            iconSize = maxIconSize;
+            idx = 0;
+            for (let row = 0; row < rows; row++) {
+              if (row == 0) {
+                icons = allergenCount - (rows - 1) * maxIcons;
               } else {
-                if(a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
-                if(a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
+                icons = maxIcons;
               }
-              return 0;
-            })
-          },
-          filteredDishes() {
-            return this.dishes.filter((dish) => {
-              return (
-                dish.germanText
-                  .toLowerCase()
-                  .indexOf(this.search.toLowerCase()) != -1 ||
-                dish.englishText
-                  .toLowerCase()
-                  .indexOf(this.search.toLowerCase()) != -1 ||
-                dish.germanTextBold
-                  .toLowerCase()
-                  .indexOf(this.search.toLowerCase()) != -1 ||
-                dish.englishTextBold
-                  .toLowerCase()
-                  .indexOf(this.search.toLowerCase()) != -1 ||
-                (dish.category &&
-                  dish.category
-                    .toLowerCase()
-                    .indexOf(this.search.toLowerCase()) != -1) ||
-                (dish.tags &&
-                  dish.tags.includes(this.search.toLowerCase()))
-              );
-            });
-          },
-          lastDish() {
-            return this.dishes[this.dishes.length - 1] || {};
-          },
-          categories() {
-            let items = this.dishes.filter((n) => n);
-            return [
-              ...new Set(
-                this.dishes.map((item) => item.category).filter((n) => n)
-              )
-            ].sort();
+              for (let j = 0; j < icons; j++) {
+                if (this.cards[i].allergens[idx]) {
+                  doc.text(
+                    this.allergens[this.cards[i].allergens[idx]],
+                    x +
+                    cardWidth / 2 +
+                    cardWidth * xMultiplier -
+                    (icons * iconSize) / 2 +
+                    iconSize * j +
+                    iconSize / 2,
+                    y +
+                    cardHeight * yMultiplier +
+                    38 / 2 +
+                    33 +
+                    (38 / 2 + allergenMargin) +
+                    iconSize * row +
+                    iconSize,
+                    textOpts
+                  );
+                  idx++;
+                }
+              }
+            }
+
+            xMultiplier++;
+            if (xMultiplier >= 3 && yMultiplier == 1) {
+              doc.addPage();
+              xMultiplier = 0;
+              yMultiplier = 0;
+            }
+            if (xMultiplier >= 3) {
+              yMultiplier = 1;
+              xMultiplier = 0;
+            }
+          }
+          doc.save(`LM_${d.getDay()}${d.getMonth()}${d.getFullYear()}_${d.getHours()}${d.getMinutes()}.pdf`);
+        },
+        addDish() {
+          this.modalTitle = "Add Dish";
+          this.modalShow = true;
+        },
+        modalToggle() {
+          const body = document.querySelector("body");
+          this.modalShow = !this.modalShow;
+          this.modalShow
+            ? body.classList.add("modal-open")
+            : body.classList.remove("modal-open");
+        },
+        editDish(dishId) {
+          this.dish = { ...this.dishes.filter((dish) => dish.id === dishId)[0] }
+          if (this.dish.tags && Array.isArray(this.dish.tags))
+            this.dish.tags = this.dish.tags.join(",")
+          else
+            this.dish.tags = ""
+          this.modalToggle();
+        },
+        saveDish() {
+          if (!this.dish["id"]) {
+            let newId = this.getLastId() + 1;
+            this.dish["id"] = newId;
+            this.dish.tags = this.dish.tags.split(",")
+            this.dishes.push(this.dish);
+            this.modalToggle();
+          } else {
+            let index = this.dishes.findIndex(
+              (dish) => dish.id === this.dish["id"]
+            );
+            this.dish.tags = this.dish.tags.split(",").map(el => el.trim().toLowerCase())
+            this.dishes[index] = this.dish;
+            this.modalToggle();
+          }
+          this.saveLocalStorage();
+          this.dish = {
+            germanTextBold: "",
+            germanText: "",
+            englishTextBold: "",
+            englishText: "",
+            allergens: [],
+            diets: [],
+            category: "",
+            tags: ""
+          };
+          delete this.dish["id"];
+        },
+        closeDish() {
+          this.modalToggle();
+          this.dish = {
+            germanTextBold: "",
+            germanText: "",
+            englishTextBold: "",
+            englishText: "",
+            allergens: [],
+            diets: [],
+            category: "",
+            tags: ""
+          };
+          if (this.dish["id"]) delete this.dish["id"];
+        },
+        getLastId() {
+          return Math.max(...this.dishes.map((dish) => dish.id));
+        },
+        saveLocalStorage() {
+          localStorage.setItem("dishes", JSON.stringify(this.dishes));
+        },
+        loadLocalStorage() {
+          let data = JSON.parse(localStorage.getItem("dishes"));
+          if (data) {
+            this.dishes = data;
+          } else {
+            this.dishes = [
+              {
+                id: 1,
+                germanTextBold: "Hummus",
+                germanText:
+                  "mit roter Bete auf einem Karotten-Sonnenblumen-Mix-Brot",
+                englishTextBold: "Hummus",
+                englishText:
+                  "topped with Red Beets on a Carrot-Sunflower mix Bread",
+                allergens: ["a", "n"],
+                diets: [],
+                category: "Main course"
+              }
+            ];
           }
         },
-        mounted() {
-          this.loadLocalStorage();
+        loadButton() {
+          let fileInput = this.$refs.file;
+          fileInput.click();
+        },
+        saveJSON() {
+          const d = new Date();
+          const day = d.getDate().toString().padStart(2, "0");
+          const month = (d.getMonth() + 1).toString().padStart(2, "0");
+          const year = d.getFullYear();
+          const hour = d.getHours().toString().padStart(2, "0");
+          const minute = d.getMinutes().toString().padStart(2, "0");
+          var a = document.createElement("a");
+          var file = new Blob([JSON.stringify(this.dishes)], {
+            type: "application/json"
+          });
+          a.href = URL.createObjectURL(file);
+          a.download = `LM_${day}${month}${year}_${hour}${minute}.json`;
+          a.click();
+        },
+        loadJSON(e) {
+          const file = e.target.files[0];
+          const fileReader = new FileReader();
+          fileReader.readAsText(file);
+          fileReader.onload = (e) => {
+            this.dishes = JSON.parse(e.target.result);
+            this.saveLocalStorage();
+            e.target.value = "";
+          };
+        },
+        isActive(menuItem) {
+          return this.activeItem === menuItem;
+        },
+        setActive(menuItem) {
+          this.activeItem = menuItem;
+        },
+        boldParser(value) {
+          return value.replace(/\*\*([^\*]+)\*\*/, '<strong>$1</strong>')
         }
-      }).mount("#app");
-    </script>
-  </body>
+      },
+      computed: {
+        sortedDishes() {
+          return this.filteredDishes.sort((a, b) => {
+            let modifier = 1;
+            if (this.currentSortDir === 'desc') modifier = -1;
+            if (this.currentSort === "german") {
+              return (a["germanTextBold"] + a["germanText"]).localeCompare((b["germanTextBold"] + b["germanText"])) * modifier;
+            } else if (this.currentSort === "english") {
+              return (a["englishTextBold"] + a["englishText"]).localeCompare(b["englishTextBold"] + b["englishText"]) * modifier;
+            } else if (this.currentSort === "tags") {
+              return (a.tags ? a.tags.join(',') : '').localeCompare(b.tags ? b.tags.join(',') : '') * modifier
+            } else if (this.currentSort === "category") {
+              return (a[this.currentSort] || '').localeCompare(b[this.currentSort] || '') * modifier;
+            } else {
+              if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
+              if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
+            }
+            return 0;
+          })
+        },
+        filteredDishes() {
+          return this.dishes.filter((dish) => {
+            return (
+              dish.germanText
+                .toLowerCase()
+                .indexOf(this.search.toLowerCase()) != -1 ||
+              dish.englishText
+                .toLowerCase()
+                .indexOf(this.search.toLowerCase()) != -1 ||
+              dish.germanTextBold
+                .toLowerCase()
+                .indexOf(this.search.toLowerCase()) != -1 ||
+              dish.englishTextBold
+                .toLowerCase()
+                .indexOf(this.search.toLowerCase()) != -1 ||
+              (dish.category &&
+                dish.category
+                  .toLowerCase()
+                  .indexOf(this.search.toLowerCase()) != -1) ||
+              (dish.tags &&
+                dish.tags.includes(this.search.toLowerCase()))
+            );
+          });
+        },
+        lastDish() {
+          return this.dishes[this.dishes.length - 1] || {};
+        },
+        categories() {
+          let items = this.dishes.filter((n) => n);
+          return [
+            ...new Set(
+              this.dishes.map((item) => item.category).filter((n) => n)
+            )
+          ].sort();
+        }
+      },
+      mounted() {
+        this.loadLocalStorage();
+      }
+    }).mount("#app");
+  </script>
+</body>
+
 </html>
