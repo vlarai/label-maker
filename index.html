@@ -848,7 +848,7 @@
             }
 
             xMultiplier++;
-            if (xMultiplier >= 3 && yMultiplier == 1) {
+            if (xMultiplier >= 3 && yMultiplier == 1 && i < this.cards.length - 1) {
               doc.addPage();
               xMultiplier = 0;
               yMultiplier = 0;
