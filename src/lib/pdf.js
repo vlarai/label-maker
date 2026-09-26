@@ -22,10 +22,40 @@ function wordWidth(doc, word, bold) {
   return doc.getTextDimensions(word).w;
 }
 
+// Breaks a single word wider than `maxWidth` (e.g. a long German compound
+// noun) into hyphenated pieces that each fit, since the greedy packer below
+// can only break *between* words otherwise. Binary-searches the longest
+// prefix (plus trailing "-") that still fits on each pass; falls back to a
+// single character when even that doesn't fit, so it always makes progress.
+function splitLongWord(doc, word, bold, maxWidth) {
+  const pieces = [];
+  let remaining = word;
+  while (remaining.length > 1 && wordWidth(doc, remaining, bold) > maxWidth) {
+    let lo = 1;
+    let hi = remaining.length - 1;
+    let fit = 1;
+    while (lo <= hi) {
+      const mid = (lo + hi) >> 1;
+      if (wordWidth(doc, remaining.slice(0, mid) + "-", bold) <= maxWidth) {
+        fit = mid;
+        lo = mid + 1;
+      } else {
+        hi = mid - 1;
+      }
+    }
+    pieces.push(remaining.slice(0, fit) + "-");
+    remaining = remaining.slice(fit);
+  }
+  pieces.push(remaining);
+  return pieces;
+}
+
 // Wraps `text` (which may contain **bold** spans and explicit \n breaks)
 // into visual lines no wider than MAX_TEXT_WIDTH, mixing bold/regular words
-// on the same line as needed — a standard greedy line-break, no
-// hyphenation. Each \n starts a fresh line unconditionally (so e.g. a dish
+// on the same line as needed — a standard greedy line-break. A single word
+// wider than MAX_TEXT_WIDTH on its own (long compound words are common in
+// German) is hyphen-split via splitLongWord so it can't overflow past the
+// card edge. Each \n starts a fresh line unconditionally (so e.g. a dish
 // name can be kept visually separate from its description); an empty line
 // contributes one blank visual line. Returns an array of
 // { words: [{ word, bold, width }], width } per visual line.
@@ -37,7 +67,14 @@ function layoutParagraph(doc, text, spaceWidth) {
       run.text
         .split(/\s+/)
         .filter(Boolean)
-        .map((word) => ({ word, bold: run.bold })),
+        .flatMap((word) => {
+          if (wordWidth(doc, word, run.bold) <= MAX_TEXT_WIDTH) {
+            return [{ word, bold: run.bold }];
+          }
+          return splitLongWord(doc, word, run.bold, MAX_TEXT_WIDTH).map(
+            (piece) => ({ word: piece, bold: run.bold }),
+          );
+        }),
     );
 
     let current = [];
