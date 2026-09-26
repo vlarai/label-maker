@@ -4,13 +4,23 @@
   import { ui } from "./ui.svelte.js";
   import { parseBoldLines } from "./richText.js";
 
-  const columns = [
-    { key: "id", label: "ID" },
-    { key: "german", label: "German" },
-    { key: "english", label: "English" },
-    { key: "category", label: "Category" },
-    { key: "tags", label: "Tags" },
-  ];
+  let columns = $derived(
+    ui.swapLanguages
+      ? [
+          { key: "id", label: "ID" },
+          { key: "english", label: "English" },
+          { key: "german", label: "German" },
+          { key: "category", label: "Category" },
+          { key: "tags", label: "Tags" },
+        ]
+      : [
+          { key: "id", label: "ID" },
+          { key: "german", label: "German" },
+          { key: "english", label: "English" },
+          { key: "category", label: "Category" },
+          { key: "tags", label: "Tags" },
+        ],
+  );
 
   function sortIcon(col) {
     if (store.currentSort !== col) return "sort";
@@ -44,25 +54,38 @@
   </colgroup>
 {/snippet}
 
+{#snippet germanCell(dish)}
+  <td data-label="German">
+    {#each parseBoldLines(dish.germanText) as line, i}
+      {#if i > 0}<br />{/if}
+      {#each line as run}
+        {#if run.bold}<strong>{run.text}</strong>{:else}{run.text}{/if}
+      {/each}
+    {/each}
+  </td>
+{/snippet}
+
+{#snippet englishCell(dish)}
+  <td data-label="English">
+    {#each parseBoldLines(dish.englishText) as line, i}
+      {#if i > 0}<br />{/if}
+      {#each line as run}
+        {#if run.bold}<strong>{run.text}</strong>{:else}{run.text}{/if}
+      {/each}
+    {/each}
+  </td>
+{/snippet}
+
 {#snippet dishRow(dish, pinned)}
   <tr class:pinned>
     <td class="col-id" data-label="ID">{dish.id}</td>
-    <td data-label="German">
-      {#each parseBoldLines(dish.germanText) as line, i}
-        {#if i > 0}<br />{/if}
-        {#each line as run}
-          {#if run.bold}<strong>{run.text}</strong>{:else}{run.text}{/if}
-        {/each}
-      {/each}
-    </td>
-    <td data-label="English">
-      {#each parseBoldLines(dish.englishText) as line, i}
-        {#if i > 0}<br />{/if}
-        {#each line as run}
-          {#if run.bold}<strong>{run.text}</strong>{:else}{run.text}{/if}
-        {/each}
-      {/each}
-    </td>
+    {#if ui.swapLanguages}
+      {@render englishCell(dish)}
+      {@render germanCell(dish)}
+    {:else}
+      {@render germanCell(dish)}
+      {@render englishCell(dish)}
+    {/if}
     <td data-label="Category">{dish.category}</td>
     <td data-label="Tags">{dish.tags?.length ? dish.tags.join(", ") : ""}</td>
     <td class="col-actions">

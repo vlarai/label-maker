@@ -2,6 +2,7 @@ import { store } from "./store.svelte.js";
 import { blankDish } from "./data.js";
 
 const THEME_KEY = "theme";
+const SWAP_LANGUAGES_COOKIE = "swapLanguages";
 
 function getInitialTheme() {
   const stored = localStorage.getItem(THEME_KEY);
@@ -11,12 +12,23 @@ function getInitialTheme() {
     : "light";
 }
 
+function getCookie(name) {
+  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
+function setCookie(name, value) {
+  document.cookie = `${name}=${encodeURIComponent(value)}; max-age=31536000; path=/`;
+}
+
 class UiStore {
   activeTab = $state("database");
   modalOpen = $state(false);
   modalInitial = $state(blankDish());
   confirm = $state(null); // { message, confirmLabel, danger, onConfirm }
   theme = $state(getInitialTheme());
+  // Defaults to English-first when no preference has been saved yet.
+  swapLanguages = $state(getCookie(SWAP_LANGUAGES_COOKIE) !== "false");
 
   constructor() {
     document.documentElement.setAttribute("data-theme", this.theme);
@@ -26,6 +38,11 @@ class UiStore {
     this.theme = this.theme === "dark" ? "light" : "dark";
     localStorage.setItem(THEME_KEY, this.theme);
     document.documentElement.setAttribute("data-theme", this.theme);
+  }
+
+  toggleSwapLanguages() {
+    this.swapLanguages = !this.swapLanguages;
+    setCookie(SWAP_LANGUAGES_COOKIE, String(this.swapLanguages));
   }
 
   openAddDish() {

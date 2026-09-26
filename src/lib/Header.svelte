@@ -44,6 +44,13 @@
     <div class="actions">
       <button
         class="btn btn-icon btn-ghost"
+        title="Swap German/English columns"
+        onclick={() => ui.toggleSwapLanguages()}
+      >
+        <Icon name="swap" />
+      </button>
+      <button
+        class="btn btn-icon btn-ghost"
         title={ui.theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
         onclick={() => ui.toggleTheme()}
       >
