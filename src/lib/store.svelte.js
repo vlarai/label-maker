@@ -79,7 +79,7 @@ class LabelStore {
         (dish.germanText || "").replaceAll("**", "").replaceAll("\n", " ").toLowerCase().includes(q) ||
         (dish.englishText || "").replaceAll("**", "").replaceAll("\n", " ").toLowerCase().includes(q) ||
         (dish.category || "").toLowerCase().includes(q) ||
-        (dish.tags && dish.tags.includes(q))
+        (dish.tags || []).some((tag) => tag.toLowerCase().includes(q))
       );
     });
   }
